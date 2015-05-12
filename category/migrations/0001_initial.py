@@ -1,64 +1,44 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'Category'
-        db.create_table('category_category', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255, db_index=True)),
-        ))
-        db.send_create_signal('category', ['Category'])
-
-        # Adding model 'Tag'
-        db.create_table('category_tag', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255, db_index=True)),
-        ))
-        db.send_create_signal('category', ['Tag'])
-
-        # Adding M2M table for field categories on 'Tag'
-        db.create_table('category_tag_categories', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('tag', models.ForeignKey(orm['category.tag'], null=False)),
-            ('category', models.ForeignKey(orm['category.category'], null=False))
-        ))
-        db.create_unique('category_tag_categories', ['tag_id', 'category_id'])
+from django.db import models, migrations
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Category'
-        db.delete_table('category_category')
+class Migration(migrations.Migration):
 
-        # Deleting model 'Tag'
-        db.delete_table('category_tag')
+    dependencies = [
+        ('sites', '0001_initial'),
+    ]
 
-        # Removing M2M table for field categories on 'Tag'
-        db.delete_table('category_tag_categories')
-
-
-    models = {
-        'category.category': {
-            'Meta': {'ordering': "('title',)", 'object_name': 'Category'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '200'})
-        },
-        'category.tag': {
-            'Meta': {'ordering': "('title',)", 'object_name': 'Tag'},
-            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['category.Category']", 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '200'})
-        }
-    }
-
-    complete_apps = ['category']
+    operations = [
+        migrations.CreateModel(
+            name='Category',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(help_text=b'Short descriptive name for this category.', max_length=200)),
+                ('subtitle', models.CharField(default=b'', max_length=200, null=True, help_text=b'Some titles may be the same and cause confusion in admin UI. A subtitle makes a distinction.', blank=True)),
+                ('slug', models.SlugField(help_text=b'Short descriptive unique name for use in urls.', unique=True, max_length=255)),
+                ('parent', models.ForeignKey(blank=True, to='category.Category', null=True)),
+                ('sites', models.ManyToManyField(help_text=b'Limits category scope to selected sites.', to='sites.Site', blank=True)),
+            ],
+            options={
+                'ordering': ('title',),
+                'verbose_name': 'category',
+                'verbose_name_plural': 'categories',
+            },
+        ),
+        migrations.CreateModel(
+            name='Tag',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(help_text=b'Short descriptive name for this tag.', max_length=200)),
+                ('slug', models.SlugField(help_text=b'Short descriptive unique name for use in urls.', unique=True, max_length=255)),
+                ('categories', models.ManyToManyField(help_text=b'Categories to which this tag belongs.', to='category.Category', blank=True)),
+            ],
+            options={
+                'ordering': ('title',),
+                'verbose_name': 'tag',
+                'verbose_name_plural': 'tags',
+            },
+        ),
+    ]

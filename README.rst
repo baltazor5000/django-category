@@ -10,7 +10,9 @@ Installation
 
 #. Install or add ``django-category`` to your Python path.
 
+#. Add ``django.contrib.sites`` to your ``INSTALLED_APPS`` setting.
 #. Add ``category`` to your ``INSTALLED_APPS`` setting.
+#. Add ``SITE_ID=1`` to your settings.
 
 Usage
 -----

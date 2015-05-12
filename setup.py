@@ -14,7 +14,6 @@ setup(
     test_suite="setuptest.setuptest.SetupTestSuite",
     install_requires = [
         'Django',
-        'south',
         'django-object-tools',
     ],
     tests_require=[
